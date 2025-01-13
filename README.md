@@ -1,5 +1,9 @@
 # PgnParse
 
+![supported python versions](https://img.shields.io/pypi/pyversions/pgnparse.svg)
+[![current PyPI version](https://img.shields.io/pypi/v/pgnparse.svg)](https://pypi.org/project/pgnparse/)
+[![CI](https://github.com/ItsDrike/pgnparse/actions/workflows/main.yml/badge.svg)](https://github.com/ItsDrike/pgnparse/actions/workflows/main.yml)
+
 This is a simple library capable of parsing chess PGNs, following the standard
 definition. It includes classes that form an Abstract Syntax Tree, fully
 representing the parsed PGN with code. These classes also include `__str__`
