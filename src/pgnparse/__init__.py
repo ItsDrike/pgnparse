@@ -18,11 +18,11 @@ __all__ = [
 # however, it is not 100% compatible with the EBNF standard, the lark parser makes
 # some modifications to the notation to make it more user-friendly.
 PGN_GRAMMAR = r"""
-pgn: WS? tag_section WS? (comment WS?)? turn_section? (WS result)? WS?
+pgn: tag_section? comment? turn_section? result?
 
 # Tags
-tag_section: tag_line*
-tag_line: "[" tag_name WS_INLINE quoted_value "]" NEWLINE
+tag_section: tag_line (NEWLINE tag_line)* NEWLINE?
+tag_line: "[" tag_name WS_INLINE quoted_value "]"
 tag_name: TAG_NAME
 quoted_value: ESCAPED_STRING
 
@@ -31,8 +31,8 @@ result: RESULT
 
 # Turns
 turn_section: turn (WS (turn | variant))*
-turn: turn_number WS? white_move (WS black_move)?
-    | turn_number_continuation WS? black_move
+turn: turn_number white_move (WS black_move)?
+    | turn_number_continuation black_move
 variant: "(" turn_section ")"
 turn_number: INT "."
 turn_number_continuation: INT "..."
@@ -40,7 +40,7 @@ turn_number_continuation: INT "..."
 # Moves
 white_move: move
 black_move: move
-move: move_string annotation? (WS numeric_annotation)* (WS block_comment)?
+move: move_string annotation? numeric_annotation* block_comment?
 move_string: MOVE_STRING
 
 # Move metadata
@@ -75,7 +75,7 @@ BLOCK_COMMENT_TEXT: /[^}]+/
 LINE_COMMENT_TEXT: /[^\n]+/
 TAG_NAME: /[A-Za-z]([A-Za-z0-9-]*)/
 
-# Imports
+# Token Imports
 %import common.WS
 %import common.WS_INLINE
 %import common.NEWLINE
@@ -83,6 +83,8 @@ TAG_NAME: /[A-Za-z]([A-Za-z0-9-]*)/
 %import common.DIGIT
 %import common.INT
 %import common.ESCAPED_STRING
+
+%ignore WS
 """
 
 PGN_PARSER = Lark(PGN_GRAMMAR, start="pgn")
