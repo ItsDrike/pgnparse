@@ -26,7 +26,7 @@ keywords = ["Chess", "PGN", "Parsing"]
 dependencies = ["lark>=1.2.2"]
 
 [project.urls]
-Documentatino = "https://github.com/ItsDrike/pgnparse"
+Documentation = "https://github.com/ItsDrike/pgnparse"
 "Source code" = "https://github.com/ItsDrike/pgnparse"
 
 [build-system]
