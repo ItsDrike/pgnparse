@@ -8,19 +8,17 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
 @pytest.mark.parametrize(
     ("pgn", "expected_ast"),
     [
-        (
+        pytest.param(
             "1. e4",
-            PGN(
-                turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), None)]),
-            ),
+            PGN(turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), None)])),
+            id="1-move",
         ),
-        (
+        pytest.param(
             "1. e4 e5",
-            PGN(
-                turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), PGNTurnMove("e5"))]),
-            ),
+            PGN(turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), PGNTurnMove("e5"))])),
+            id="2-moves",
         ),
-        (
+        pytest.param(
             "1. d4 d5 2. c4",
             PGN(
                 turns=PGNTurnList(
@@ -30,8 +28,9 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                     ],
                 ),
             ),
+            id="3-moves",
         ),
-        (
+        pytest.param(
             "1. d4 d5 2. c4 {Queen's Gambit}",
             PGN(
                 turns=PGNTurnList(
@@ -41,8 +40,9 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                     ],
                 ),
             ),
+            id="3-moves-with-comment",
         ),
-        (
+        pytest.param(
             "1. d4 d5 2. c4 {Queen's Gambit} dxc4 {Queen's Gambit Accepted}",
             PGN(
                 turns=PGNTurnList(
@@ -56,8 +56,9 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                     ],
                 ),
             ),
+            id="4-moves-with-2-single-move-comments",
         ),
-        (
+        pytest.param(
             "1. d4 d5 2. c4 2... dxc4",
             PGN(
                 turns=PGNTurnList(
@@ -68,8 +69,9 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                     ],
                 ),
             ),
+            id="split-turn",
         ),
-        (
+        pytest.param(
             "1. d4 d5 2. c4 {Queen's Gambit} 2... dxc4 {Queen's Gambit Accepted}",
             PGN(
                 turns=PGNTurnList(
@@ -88,84 +90,97 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                     ],
                 ),
             ),
+            id="split-turn-with-comments",
         ),
-        (
+        pytest.param(
             "1. e4 *",
             PGN(
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), None)]),
                 result=PGNGameResult.UNFINISHED,
             ),
+            id="unfinished-result",
         ),
-        (
+        pytest.param(
             "1. e4 1-0",
             PGN(
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), None)]),
                 result=PGNGameResult.WHITE_WINS,
             ),
+            id="white-win-result",
         ),
-        (
+        pytest.param(
             "1. e4 0-1",
             PGN(
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), None)]),
                 result=PGNGameResult.BLACK_WINS,
             ),
+            id="black-win-result",
         ),
-        (
+        pytest.param(
             "1. e4 1/2-1/2",
             PGN(
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), None)]),
                 result=PGNGameResult.DRAW,
             ),
+            id="draw-result",
         ),
-        (
+        pytest.param(
             "1. e4??",
             PGN(
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4", annotation=PGNBasicAnnotation.BLUNDER), None)]),
             ),
+            id="blunder-annotation",
         ),
-        (
+        pytest.param(
             "1. e4?!",
             PGN(
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4", annotation=PGNBasicAnnotation.DUBIOUS_MOVE), None)]),
             ),
+            id="dubious-move-annotation",
         ),
-        (
+        pytest.param(
             "1. e4!?",
             PGN(
                 turns=PGNTurnList(
                     [PGNTurn(1, PGNTurnMove("e4", annotation=PGNBasicAnnotation.INTERESTING_MOVE), None)],
                 ),
             ),
+            id="interesting-move-annotation",
         ),
-        (
+        pytest.param(
             "1. e4!",
             PGN(
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4", annotation=PGNBasicAnnotation.GOOD_MOVE), None)]),
             ),
+            id="good-move-annotation",
         ),
-        (
+        pytest.param(
             "1. e4!!",
             PGN(
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4", annotation=PGNBasicAnnotation.BRILLIANT_MOVE), None)]),
             ),
+            id="brilliant-move-annotation",
         ),
-        (
+        pytest.param(
             "1. d4 $1",
             PGN(
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("d4", numeric_annotations=[1]), None)]),
             ),
+            id="single-numeric-annotation",
         ),
-        (
+        pytest.param(
             "1. d4 $1 $2 $3",
             PGN(
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("d4", numeric_annotations=[1, 2, 3]), None)]),
             ),
+            id="multiple-numeric-annotations",
         ),
-        (
+        pytest.param(
             '[UTCDate "2025.01.13"]',
             PGN(tags={"UTCDate": "2025.01.13"}),
+            id="tags-single-field",
         ),
-        (
+        pytest.param(
             textwrap.dedent(
                 """
                 [UTCDate "2025.01.13"]
@@ -180,8 +195,9 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                     "Variant": "Standard",
                 },
             ),
+            id="tags-multiple-fields",
         ),
-        (
+        pytest.param(
             "1. e4 (1... e5 2. Nf3) 1... c5",
             PGN(
                 turns=PGNTurnList(
@@ -197,8 +213,9 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                     ],
                 ),
             ),
+            id="single-variation",
         ),
-        (
+        pytest.param(
             "1. e4 e5 (1... c5 2. Nf3 d6) (1... e6 2. d4 d5) 2. Nf3 Nc6",
             PGN(
                 turns=PGNTurnList(
@@ -220,8 +237,9 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                     ],
                 ),
             ),
+            id="multiple-variations",
         ),
-        (
+        pytest.param(
             "1. e4 (1... e5 (2. Nf3 (2... Nc6 3. Bb5))) 1... c5",
             PGN(
                 turns=PGNTurnList(
@@ -247,22 +265,28 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                     ],
                 ),
             ),
+            id="nested-variations",
         ),
-        (
+        pytest.param(
             "1. e4! $1 $2",
             PGN(
                 turns=PGNTurnList(
                     [
                         PGNTurn(
                             1,
-                            PGNTurnMove("e4", annotation=PGNBasicAnnotation.GOOD_MOVE, numeric_annotations=[1, 2]),
+                            PGNTurnMove(
+                                "e4",
+                                annotation=PGNBasicAnnotation.GOOD_MOVE,
+                                numeric_annotations=[1, 2],
+                            ),
                             None,
                         ),
                     ],
                 ),
             ),
+            id="basic-annotation-with-numeric-annotations",
         ),
-        (
+        pytest.param(
             "1. e4! $1 $2 {Good move} 1... e5?! $3",
             PGN(
                 turns=PGNTurnList(
@@ -280,24 +304,31 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                         PGNTurn(
                             1,
                             None,
-                            PGNTurnMove("e5", annotation=PGNBasicAnnotation.DUBIOUS_MOVE, numeric_annotations=[3]),
+                            PGNTurnMove(
+                                "e5",
+                                annotation=PGNBasicAnnotation.DUBIOUS_MOVE,
+                                numeric_annotations=[3],
+                            ),
                         ),
                     ],
                 ),
             ),
+            id="basic-annotation-with-numeric-annotations-and-comment",
         ),
-        (
+        pytest.param(
             "{This is a global block comment}",
             PGN(comment="This is a global block comment"),
+            id="global-block-comment",
         ),
-        (
+        pytest.param(
             # Note: Line comment spec should end with a newline, it's not clear
             # whether this newline is optional when there's nothing else in the PGN.
             # The parser will currently expects a newline.
             ";This is a global line comment\n",
             PGN(comment="This is a global line comment"),
+            id="global-line-comment",
         ),
-        (
+        pytest.param(
             textwrap.dedent(
                 """
                 [Event "F/S Return Match"]
@@ -378,8 +409,9 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                 ),
                 result=PGNGameResult.DRAW,
             ),
+            id="full-game",
         ),
-        (
+        pytest.param(
             """
             [Event "F/S Return Match"]
             [Site "Belgrade, Serbia JUG"]
@@ -463,38 +495,8 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                 ),
                 result=PGNGameResult.DRAW,
             ),
+            id="full-game-extra-whitespace",
         ),
-    ],
-    ids=[
-        "1-move",
-        "2-moves",
-        "3-moves",
-        "3-moves-with-comment",
-        "4-moves-with-2-single-move-comments",
-        "split-turn",
-        "split-turn-with-comments",
-        "unfinished-result",
-        "white-win-result",
-        "black-win-result",
-        "draw-result",
-        "blunder-annotation",
-        "dubious-move-annotation",
-        "interesting-move-annotation",
-        "good-move-annotation",
-        "brilliant-move-annotation",
-        "single-numeric-annotation",
-        "multiple-numeric-annotations",
-        "tags-single-field",
-        "tags-multiple-fields",
-        "single-variation",
-        "multiple-variations",
-        "nested-variations",
-        "basic-annotation-with-numeric-annotations",
-        "basic-annotation-with-numeric-annotations-and-comment",
-        "global-block-comment",
-        "global-line-comment",
-        "full-game",
-        "full-game-extra-whitespace",
     ],
 )
 def test_parser(pgn: str, expected_ast: PGN):
