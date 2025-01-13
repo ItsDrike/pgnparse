@@ -16,3 +16,6 @@ concurrency:
 jobs:
   validation:
     uses: ./.github/workflows/validation.yml
+
+  unit-tests:
+    uses: ./.github/workflows/unit-tests.yml

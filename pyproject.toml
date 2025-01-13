@@ -34,11 +34,12 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.uv]
-default-groups = ["dev", "lint"]
+default-groups = ["dev", "lint", "test"]
 
 [dependency-groups]
 lint = ["basedpyright>=1.23.2", "pre-commit>=4.0.1", "ruff>=0.9.1"]
 dev = ["poethepoet>=0.32.1"]
+test = ["pytest>=8.3.4", "pytest-cov>=6.0.0"]
 
 [tool.poe.tasks]
 precommit = "pre-commit install"
@@ -46,6 +47,8 @@ lint = "pre-commit run --all-files"
 basedpyright = "basedpyright --warnings ."
 ruff = "ruff check --fix ."
 ruff-format = "ruff format ."
+test = "pytest -v --failed-first"
+retest = "pytest -v --last-failed"
 
 [tool.basedpyright]
 pythonPlatform = "All"
@@ -73,7 +76,6 @@ reportUnannotatedClassAttribute = false
 reportMissingTypeStubs = "information"      # consider bumping to warning/error
 reportUninitializedInstanceVariable = false # until https://github.com/DetachHead/basedpyright/issues/491
 reportMissingParameterType = false          # ruff's flake8-annotations (ANN) already covers this + gives us more control
-
 
 [tool.ruff]
 target-version = "py312"
@@ -134,6 +136,12 @@ ignore = [
   "S105",    # Hard-coded passwords
 ]
 
+[tool.ruff.lint.extend-per-file-ignores]
+"tests/*" = [
+  "ANN",  # flake8-annotations
+  "S101", # Use of assert
+]
+
 [tool.ruff.lint.isort]
 order-by-type = false
 case-sensitive = true
@@ -150,3 +158,34 @@ ban-relative-imports = "all"
 
 [tool.ruff.format]
 line-ending = "lf"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["tests"]
+addopts = "--strict-markers --cov --no-cov-on-fail"
+
+[tool.coverage.report]
+precision = 2
+#fail_under = 80
+show_missing = true
+skip_covered = false
+skip_empty = false
+sort = "cover"
+exclude_lines = [
+  "\\#\\s*pragma: no cover",
+  "^\\s*if (typing\\.)?TYPE_CHECKING:",
+  "^\\s*@(abc\\.)?abstractmethod",
+  "^\\s*@(typing\\.)?overload",
+  "^\\s*def __repr__\\(",
+  "^\\s*class .*\\bProtocol\\):",
+  "^\\s*raise NotImplementedError",
+  "^\\s*return NotImplemented",
+  "^\\s*\\.\\.\\.",
+]
+
+[tool.coverage.run]
+relative_files = true
+parallel = true
+branch = true
+timid = false
+source = ["src/pgnparse"]
