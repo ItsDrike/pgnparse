@@ -11,21 +11,21 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
         (
             "1. e4",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), None)]),
             ),
         ),
         (
             "1. e4 e5",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), PGNTurnMove("e5"))]),
             ),
         ),
         (
             "1. d4 d5 2. c4",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList(
                     [
                         PGNTurn(1, PGNTurnMove("d4"), PGNTurnMove("d5")),
@@ -37,7 +37,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
         (
             "1. d4 d5 2. c4 {Queen's Gambit}",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList(
                     [
                         PGNTurn(1, PGNTurnMove("d4"), PGNTurnMove("d5")),
@@ -49,7 +49,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
         (
             "1. d4 d5 2. c4 {Queen's Gambit} dxc4 {Queen's Gambit Accepted}",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList(
                     [
                         PGNTurn(1, PGNTurnMove("d4"), PGNTurnMove("d5")),
@@ -65,7 +65,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
         (
             "1. d4 d5 2. c4 2... dxc4",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList(
                     [
                         PGNTurn(1, PGNTurnMove("d4"), PGNTurnMove("d5")),
@@ -78,7 +78,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
         (
             "1. d4 d5 2. c4 {Queen's Gambit} 2... dxc4 {Queen's Gambit Accepted}",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList(
                     [
                         PGNTurn(1, PGNTurnMove("d4"), PGNTurnMove("d5")),
@@ -99,7 +99,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
         (
             "1. e4 *",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), None)]),
                 result=PGNGameResult.UNFINISHED,
             ),
@@ -107,7 +107,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
         (
             "1. e4 1-0",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), None)]),
                 result=PGNGameResult.WHITE_WINS,
             ),
@@ -115,7 +115,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
         (
             "1. e4 0-1",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), None)]),
                 result=PGNGameResult.BLACK_WINS,
             ),
@@ -123,7 +123,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
         (
             "1. e4 1/2-1/2",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), None)]),
                 result=PGNGameResult.DRAW,
             ),
@@ -131,21 +131,21 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
         (
             "1. e4??",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4", annotation=PGNBasicAnnotation.BLUNDER), None)]),
             ),
         ),
         (
             "1. e4?!",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4", annotation=PGNBasicAnnotation.DUBIOUS_MOVE), None)]),
             ),
         ),
         (
             "1. e4!?",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList(
                     [PGNTurn(1, PGNTurnMove("e4", annotation=PGNBasicAnnotation.INTERESTING_MOVE), None)],
                 ),
@@ -154,28 +154,28 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
         (
             "1. e4!",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4", annotation=PGNBasicAnnotation.GOOD_MOVE), None)]),
             ),
         ),
         (
             "1. e4!!",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4", annotation=PGNBasicAnnotation.BRILLIANT_MOVE), None)]),
             ),
         ),
         (
             "1. d4 $1",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("d4", extra_annotations=[1]), None)]),
             ),
         ),
         (
             "1. d4 $1 $2 $3",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("d4", extra_annotations=[1, 2, 3]), None)]),
             ),
         ),
@@ -187,7 +187,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                 1. d4""",
             ).strip(),
             PGN(
-                metadata={"UTCDate": "2025.01.13"},
+                tags={"UTCDate": "2025.01.13"},
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("d4"), None)]),
             ),
         ),
@@ -202,14 +202,14 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                 """,
             ).strip(),
             PGN(
-                metadata={"UTCDate": "2025.01.13", "UTCTime": "22:18:02", "Variant": "Standard"},
+                tags={"UTCDate": "2025.01.13", "UTCTime": "22:18:02", "Variant": "Standard"},
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("d4"), None)]),
             ),
         ),
         (
             "1. e4 (1... e5 2. Nf3) 1... c5",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList(
                     [
                         PGNTurn(1, PGNTurnMove("e4"), None),
@@ -227,7 +227,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
         (
             "1. e4 e5 (1... c5 2. Nf3 d6) (1... e6 2. d4 d5) 2. Nf3 Nc6",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList(
                     [
                         PGNTurn(1, PGNTurnMove("e4"), PGNTurnMove("e5")),
@@ -251,7 +251,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
         (
             "1. e4 (1... e5 (2. Nf3 (2... Nc6 3. Bb5))) 1... c5",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList(
                     [
                         PGNTurn(1, PGNTurnMove("e4"), None),
@@ -279,7 +279,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
         (
             "1. e4! $1 $2",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList(
                     [
                         PGNTurn(
@@ -294,7 +294,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
         (
             "1. e4! $1 $2 {Good move} 1... e5?! $3",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList(
                     [
                         PGNTurn(
@@ -319,7 +319,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
         (
             "{This is a global comment}",
             PGN(
-                metadata={},
+                tags={},
                 turns=PGNTurnList([]),
                 comment="This is a global comment",
             ),

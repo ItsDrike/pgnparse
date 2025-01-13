@@ -18,11 +18,11 @@ __all__ = [
 # however, it is not 100% compatible with the EBNF standard, the lark parser makes
 # some modifications to the notation to make it more user-friendly.
 PGN_GRAMMAR = r"""
-pgn: WS? metadata_section WS? (comment WS?)? turn_section? (WS result)? WS?
+pgn: WS? tag_section WS? (comment WS?)? turn_section? (WS result)? WS?
 
-# Metadata
-metadata_section: metadata_line*
-metadata_line: "[" tag_name WS_INLINE quoted_value "]" NEWLINE
+# Tags
+tag_section: tag_line*
+tag_line: "[" tag_name WS_INLINE quoted_value "]" NEWLINE
 tag_name: TAG_NAME
 quoted_value: ESCAPED_STRING
 
@@ -359,7 +359,7 @@ class PGNTurnList[T: PGNTurn | PGNTurnList](Sequence[T]):
 class PGN:
     """A PGN object that represents a full game in Portable Game Notation (PGN) format."""
 
-    metadata: dict[str, str] = field(default_factory=dict[str, str])
+    tags: dict[str, str] = field(default_factory=dict[str, str])
     turns: PGNTurnList[Any] = field(default_factory=lambda: PGNTurnList[Any]([]))
     result: PGNGameResult = PGNGameResult.UNSPECIFIED
     comment: str = ""
@@ -382,15 +382,15 @@ class PGN:
         # Collect tree children, skipping tokens (whitespace)
         subtrees = [el for el in tree.children if isinstance(el, Tree)]
 
-        metadata = {}
+        tags = {}
         comment = ""
         result = PGNGameResult.UNSPECIFIED
         turns: PGNTurnList[Any] = PGNTurnList([])
         while len(subtrees) > 0:
             section = subtrees.pop(0)
 
-            if section.data == "metadata_section":
-                metadata = cls._parse_metadata(section)
+            if section.data == "tag_section":
+                tags = cls._parse_tags(section)
             elif section.data == "comment":
                 comment = cast(Token, section.children[0]).value
             elif section.data == "turn_section":
@@ -400,28 +400,28 @@ class PGN:
             else:
                 raise InvalidPGNTreeError(f"Unexpected section: {section.data}")
 
-        return cls(metadata, turns, result, comment)
+        return cls(tags, turns, result, comment)
 
     @staticmethod
-    def _parse_metadata(tree: ParseTree) -> dict[str, str]:
-        """Parse the metadata section of a PGN tree."""
-        metadata: dict[str, str] = {}
-        for line in tree.find_data("metadata_line"):
+    def _parse_tags(tree: ParseTree) -> dict[str, str]:
+        """Parse the tags section of a PGN tree."""
+        tags: dict[str, str] = {}
+        for line in tree.find_data("tag_line"):
             tag_name: str = cast(Token, next(line.find_data("tag_name")).children[0]).value
             quoted_value: str = cast(Token, next(line.find_data("quoted_value")).children[0]).value
             value = quoted_value.removeprefix('"').removesuffix('"')
 
-            metadata[tag_name] = value
-        return metadata
+            tags[tag_name] = value
+        return tags
 
     @override
     def __str__(self) -> str:
         parts: list[str] = []
 
-        for key, value in self.metadata.items():
+        for key, value in self.tags.items():
             parts.append(f'[{key} "{value}"]\n')
 
-        # There is (usually) an additional newline between metadata and turns
+        # There is (usually) an additional newline between tags and turns
         if len(parts) > 0:
             parts.append("\n")
 
@@ -430,3 +430,8 @@ class PGN:
             parts.append(f" {self.result}")
 
         return "".join(parts)
+
+    @property
+    def metadata(self) -> dict[str, str]:
+        """Alias for the tags attribute."""
+        return self.tags
