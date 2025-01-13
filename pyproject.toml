@@ -33,8 +33,19 @@ Documentatino = "https://github.com/ItsDrike/pypgn"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.uv]
+default-groups = ["dev", "lint"]
+
 [dependency-groups]
-lint = ["basedpyright>=1.23.2", "ruff>=0.9.1"]
+lint = ["basedpyright>=1.23.2", "pre-commit>=4.0.1", "ruff>=0.9.1"]
+dev = ["poethepoet>=0.32.1"]
+
+[tool.poe.tasks]
+precommit = "pre-commit install"
+lint = "pre-commit run --all-files"
+basedpyright = "basedpyright --warnings ."
+ruff = "ruff check --fix ."
+ruff-format = "ruff format ."
 
 [tool.basedpyright]
 pythonPlatform = "All"

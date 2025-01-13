@@ -1,0 +1,43 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-toml # For pyproject.toml
+      - id: check-yaml # For workflows
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  - repo: local
+    hooks:
+      - id: ruff-linter
+        name: Ruff Linter
+        description: Run ruff checks on the code
+        entry: uv run ruff check --force-exclude
+        language: system
+        types: [python]
+        require_serial: true
+        args: [--fix, --exit-non-zero-on-fix]
+
+  - repo: local
+    hooks:
+      - id: ruff-formatter
+        name: Ruff Formatter
+        description: Ruf ruff auto-formatter
+        entry: uv run ruff format
+        language: system
+        types: [python]
+        require_serial: true
+
+  - repo: local
+    hooks:
+      - id: basedpyright
+        name: Based Pyright
+        description: Run basedpyright type checker
+        entry: uv run basedpyright --warnings
+        language: system
+        types: [python]
+        pass_filenames: false # pyright runs for the entire project, it can't run for single files
