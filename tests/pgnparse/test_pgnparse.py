@@ -1,6 +1,7 @@
 import textwrap
 
 import pytest
+from lark import UnexpectedInput
 
 from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnList, PGNTurnMove
 
@@ -562,3 +563,96 @@ def test_valid_pgn(pgn: str, expected_ast: PGN):
     """Check if given valid PGN is parsed correctly (matches the expected AST)."""
     parsed = PGN.from_string(pgn)
     assert parsed == expected_ast
+
+
+@pytest.mark.parametrize(
+    "pgn",
+    [
+        pytest.param(
+            "(1. e4)",
+            id="variation-without-mainline",
+        ),
+        pytest.param(
+            "e4 e5",
+            id="missing-turn-number",
+        ),
+        pytest.param(
+            "1. e4 $-1",
+            id="negative-numeric-annotation",
+        ),
+        pytest.param(
+            "1. e4 {First comment} {Second comment}",
+            id="multiple-turn-comments",
+        ),
+        pytest.param(
+            "{First comment} {Second comment}\n1. e4",
+            id="multiple-global-comments",
+        ),
+        pytest.param(
+            # we might want to allow this in the future
+            """
+            ;This is a comment before tags
+            [Event "Game"]
+            """,
+            id="global-comment-before-tags",
+        ),
+        pytest.param(
+            "1. e4 (1... e5",
+            id="unclosed-variation",
+        ),
+        pytest.param(
+            "1. e4 {This comment is not closed",
+            id="unclosed-turn-comment",
+        ),
+        pytest.param(
+            "1. Qa9",
+            id="invalid-move-rank",
+        ),
+        pytest.param(
+            "1. Qi8",
+            id="invalid-move-file",
+        ),
+        pytest.param(
+            "1. Pg5",
+            id="invalid-move-piece",
+        ),
+        pytest.param(
+            "1. P&5",
+            id="invalid-move-special-char",
+        ),
+        pytest.param(
+            "1. e4e5",
+            id="no-space-between-moves",
+        ),
+        pytest.param(
+            "1. e4 e52. Nf3",
+            id="no-space-between-turns",
+        ),
+        pytest.param(
+            # we might want to allow this in the future
+            "1. e4 e5 1/2-1/2 {Draw agreed}",
+            id="draw-comment",
+        ),
+        pytest.param(
+            # we might want to allow this in the future
+            "1. d4 {}",
+            id="empty-comment",
+        ),
+        pytest.param(
+            "1. e4 e5 1-0 0-1",
+            id="multiple-results",
+        ),
+        pytest.param(
+            "[Event]",
+            id="tag-missing-value",
+        ),
+        pytest.param(
+            '[Event "Missing end quote]',
+            id="tag-unclosed-value",
+        ),
+    ],
+)
+def test_invalid_pgn(pgn: str):
+    """Check if given invalid PGN raises an exception during parsing/lexing."""
+    with pytest.raises(UnexpectedInput):
+        _ = PGN.from_string(pgn)
