@@ -7,6 +7,8 @@ from lark import Lark, ParseTree, Token, Tree
 
 __all__ = [
     "PGN",
+    "PGNBasicAnnotation",
+    "PGNGameResult",
     "PGNTurn",
     "PGNTurnList",
     "PGNTurnMove",
@@ -91,7 +93,7 @@ class InvalidPGNTreeError(ValueError):
 
 
 @final
-class GameResult(StrEnum):
+class PGNGameResult(StrEnum):
     """An enumeration of possible game results."""
 
     WHITE_WINS = "1-0"
@@ -102,7 +104,7 @@ class GameResult(StrEnum):
 
 
 @final
-class BasicAnnotation(StrEnum):
+class PGNBasicAnnotation(StrEnum):
     """An enumeration of basic move annotations that can be a part of PGN moves."""
 
     GOOD_MOVE = "!"
@@ -119,7 +121,7 @@ class PGNTurnMove:
     """A PGN turn move object that represents a single move in a game."""
 
     move_string: str
-    annotation: BasicAnnotation | None = None
+    annotation: PGNBasicAnnotation | None = None
     extra_annotations: list[int] = field(default_factory=list)
     comment: str | None = None
 
@@ -141,7 +143,7 @@ class PGNTurnMove:
         move_string = cast(Token, next(tree.find_data("move_string")).children[0]).value
 
         if (annotation := next(tree.find_data("annotation"), None)) is not None:
-            annotation = BasicAnnotation(cast(Token, annotation.children[0]).value)
+            annotation = PGNBasicAnnotation(cast(Token, annotation.children[0]).value)
 
         extra_annotations = [int(cast(Token, el.children[0]).value) for el in tree.find_data("extra_annotation")]
         if (comment := next(tree.find_data("comment"), None)) is not None:
@@ -359,7 +361,7 @@ class PGN:
 
     metadata: dict[str, str]
     turns: PGNTurnList[Any]
-    result: GameResult
+    result: PGNGameResult
 
     @classmethod
     def from_string(cls, pgn: str) -> "PGN":
@@ -394,9 +396,9 @@ class PGN:
             if result_tree.data != "result":
                 raise InvalidPGNTreeError("Result tree not found")
 
-            result = GameResult(cast(Token, result_tree.children[0]).value)
+            result = PGNGameResult(cast(Token, result_tree.children[0]).value)
         else:
-            result = GameResult.UNSPECIFIED
+            result = PGNGameResult.UNSPECIFIED
 
         return cls(metadata, turns, result)
 
