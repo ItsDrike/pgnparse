@@ -426,6 +426,9 @@ class PGN:
             quoted_value: str = cast(Token, next(line.find_data("quoted_value")).children[0]).value
             value = quoted_value.removeprefix('"').removesuffix('"')
 
+            if tag_name in tags:
+                raise ValueError(f"Duplicate tag name: {tag_name}")
+
             tags[tag_name] = value
         return tags
 
