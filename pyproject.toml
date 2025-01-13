@@ -1,5 +1,5 @@
 [project]
-name = "pypgn"
+name = "pgnparse"
 version = "0.1.0"
 description = "A library for parsing PGN chess notations"
 readme = "README.md"
@@ -26,8 +26,8 @@ keywords = ["Chess", "PGN", "Parsing"]
 dependencies = ["lark>=1.2.2"]
 
 [project.urls]
-Documentatino = "https://github.com/ItsDrike/pypgn"
-"Source code" = "https://github.com/ItsDrike/pypgn"
+Documentatino = "https://github.com/ItsDrike/pgnparse"
+"Source code" = "https://github.com/ItsDrike/pgnparse"
 
 [build-system]
 requires = ["hatchling"]

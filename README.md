@@ -1,4 +1,4 @@
-# PyPGN
+# PgnParse
 
 This is a simple library capable of parsing chess PGNs, following the standard
 definition. It includes classes that form an Abstract Syntax Tree, fully
