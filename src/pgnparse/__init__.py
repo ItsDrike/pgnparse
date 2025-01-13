@@ -40,13 +40,17 @@ turn_number_continuation: INT "..."
 # Moves
 white_move: move
 black_move: move
-move: move_string annotation? (WS extra_annotation)* (WS comment)?
+move: move_string annotation? (WS extra_annotation)* (WS block_comment)?
 move_string: MOVE_STRING
 
 # Move metadata
 annotation: ANNOTATION
 extra_annotation: "$" INT
-comment: "{" COMMENT_TEXT "}"
+
+# Comments
+comment: line_comment | block_comment
+block_comment: "{" BLOCK_COMMENT_TEXT "}"
+line_comment: ";" LINE_COMMENT_TEXT NEWLINE
 
 # Move types (tokens)
 MOVE_STRING: (CASTLING | PIECE_MOVE | PAWN_MOVE) (CHECK | MATE)?
@@ -67,7 +71,8 @@ FILE: /[a-h]/
 RANK: /[1-8]/
 PIECE: "K" | "Q" | "R" | "B" | "N"
 RESULT: "1-0" | "0-1" | "1/2-1/2" | "*"
-COMMENT_TEXT: /[^}]+/
+BLOCK_COMMENT_TEXT: /[^}]+/
+LINE_COMMENT_TEXT: /[^\n]+/
 TAG_NAME: /[A-Za-z]([A-Za-z0-9-]*)/
 
 # Imports
@@ -146,7 +151,7 @@ class PGNTurnMove:
             annotation = PGNBasicAnnotation(cast(Token, annotation.children[0]).value)
 
         extra_annotations = [int(cast(Token, el.children[0]).value) for el in tree.find_data("extra_annotation")]
-        if (comment := next(tree.find_data("comment"), None)) is not None:
+        if (comment := next(tree.find_data("block_comment"), None)) is not None:
             comment = cast(Token, comment.children[0]).value
 
         return cls(move_string, annotation, extra_annotations, comment)
@@ -392,7 +397,7 @@ class PGN:
             if section.data == "tag_section":
                 tags = cls._parse_tags(section)
             elif section.data == "comment":
-                comment = cast(Token, section.children[0]).value
+                comment = cast(Token, cast(ParseTree, section.children[0]).children[0]).value
             elif section.data == "turn_section":
                 turns = PGNTurnList.from_tree(section)
             elif section.data == "result":
@@ -433,5 +438,17 @@ class PGN:
 
     @property
     def metadata(self) -> dict[str, str]:
-        """Alias for the tags attribute."""
+        """Alias for the tags attribute.
+
+        Tags follow official spec naming, but metadata is more user-friendly.
+        """
         return self.tags
+
+    @property
+    def movetext(self) -> PGNTurnList[PGNTurn]:
+        """Alias for the turns attribute.
+
+        Movetext follows the official terminology, but we used turns,
+        so this is an alias.
+        """
+        return self.turns
