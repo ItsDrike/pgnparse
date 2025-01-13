@@ -31,8 +31,8 @@ result: RESULT
 
 # Turns
 turn_section: turn (WS (turn | variant))*
-turn: turn_number WS white_move (WS black_move)?
-    | turn_number_continuation WS black_move
+turn: turn_number WS? white_move (WS black_move)?
+    | turn_number_continuation WS? black_move
 variant: "(" turn_section ")"
 turn_number: INT "."
 turn_number_continuation: INT "..."
