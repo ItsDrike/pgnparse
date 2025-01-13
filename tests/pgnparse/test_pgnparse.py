@@ -152,13 +152,13 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
         (
             "1. d4 $1",
             PGN(
-                turns=PGNTurnList([PGNTurn(1, PGNTurnMove("d4", extra_annotations=[1]), None)]),
+                turns=PGNTurnList([PGNTurn(1, PGNTurnMove("d4", numeric_annotations=[1]), None)]),
             ),
         ),
         (
             "1. d4 $1 $2 $3",
             PGN(
-                turns=PGNTurnList([PGNTurn(1, PGNTurnMove("d4", extra_annotations=[1, 2, 3]), None)]),
+                turns=PGNTurnList([PGNTurn(1, PGNTurnMove("d4", numeric_annotations=[1, 2, 3]), None)]),
             ),
         ),
         (
@@ -262,7 +262,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                     [
                         PGNTurn(
                             1,
-                            PGNTurnMove("e4", annotation=PGNBasicAnnotation.GOOD_MOVE, extra_annotations=[1, 2]),
+                            PGNTurnMove("e4", annotation=PGNBasicAnnotation.GOOD_MOVE, numeric_annotations=[1, 2]),
                             None,
                         ),
                     ],
@@ -279,7 +279,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                             PGNTurnMove(
                                 "e4",
                                 annotation=PGNBasicAnnotation.GOOD_MOVE,
-                                extra_annotations=[1, 2],
+                                numeric_annotations=[1, 2],
                                 comment="Good move",
                             ),
                             None,
@@ -287,7 +287,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                         PGNTurn(
                             1,
                             None,
-                            PGNTurnMove("e5", annotation=PGNBasicAnnotation.DUBIOUS_MOVE, extra_annotations=[3]),
+                            PGNTurnMove("e5", annotation=PGNBasicAnnotation.DUBIOUS_MOVE, numeric_annotations=[3]),
                         ),
                     ],
                 ),
@@ -322,15 +322,15 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
         "interesting-move-annotation",
         "good-move-annotation",
         "brilliant-move-annotation",
-        "single-extra-annotation",
-        "multiple-extra-annotations",
+        "single-numeric-annotation",
+        "multiple-numeric-annotations",
         "metadata-single-field",
         "metadata-multiple-fields",
         "single-variation",
         "multiple-variations",
         "nested-variations",
-        "basic-annotation-with-extra-annotations",
-        "basic-annotation-with-extra-annotations-and-comment",
+        "basic-annotation-with-numeric-annotations",
+        "basic-annotation-with-numeric-annotations-and-comment",
         "global-block-comment",
         "global-line-comment",
     ],

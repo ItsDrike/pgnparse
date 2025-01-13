@@ -40,12 +40,12 @@ turn_number_continuation: INT "..."
 # Moves
 white_move: move
 black_move: move
-move: move_string annotation? (WS extra_annotation)* (WS block_comment)?
+move: move_string annotation? (WS numeric_annotation)* (WS block_comment)?
 move_string: MOVE_STRING
 
 # Move metadata
 annotation: ANNOTATION
-extra_annotation: "$" INT
+numeric_annotation: "$" INT
 
 # Comments
 comment: line_comment | block_comment
@@ -127,7 +127,7 @@ class PGNTurnMove:
 
     move_string: str
     annotation: PGNBasicAnnotation | None = None
-    extra_annotations: list[int] = field(default_factory=list)
+    numeric_annotations: list[int] = field(default_factory=list)
     comment: str | None = None
 
     @classmethod
@@ -150,11 +150,11 @@ class PGNTurnMove:
         if (annotation := next(tree.find_data("annotation"), None)) is not None:
             annotation = PGNBasicAnnotation(cast(Token, annotation.children[0]).value)
 
-        extra_annotations = [int(cast(Token, el.children[0]).value) for el in tree.find_data("extra_annotation")]
+        numeric_annotations = [int(cast(Token, el.children[0]).value) for el in tree.find_data("numeric_annotation")]
         if (comment := next(tree.find_data("block_comment"), None)) is not None:
             comment = cast(Token, comment.children[0]).value
 
-        return cls(move_string, annotation, extra_annotations, comment)
+        return cls(move_string, annotation, numeric_annotations, comment)
 
     @override
     def __str__(self) -> str:
@@ -163,15 +163,23 @@ class PGNTurnMove:
         if self.annotation:
             parts.append(str(self.annotation))
 
-        if self.extra_annotations:
+        if self.numeric_annotations:
             parts.append(" ")
-            extra_ann_str = " ".join(f"${el}" for el in self.extra_annotations)
-            parts.append(extra_ann_str)
+            num_ann_str = " ".join(f"${el}" for el in self.numeric_annotations)
+            parts.append(num_ann_str)
 
         if self.comment:
             parts.append(" {" + self.comment + "}")
 
         return "".join(parts)
+
+    @property
+    def extra_annotations(self) -> list[int]:
+        """Alias for the numeric_annotations attribute.
+
+        This is a more user-friendly name for the numeric annotations.
+        """
+        return self.numeric_annotations
 
 
 @final
