@@ -9,9 +9,34 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
     ("pgn", "expected_ast"),
     [
         pytest.param(
-            "1. e4",
-            PGN(turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), None)])),
-            id="1-move",
+            "1. e8=Q",
+            PGN(turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e8=Q"), None)])),
+            id="promotion-move",
+        ),
+        pytest.param(
+            "1. exf8=B+",
+            PGN(turns=PGNTurnList([PGNTurn(1, PGNTurnMove("exf8=B+"), None)])),
+            id="capture-and-underpromotion-with-check",
+        ),
+        pytest.param(
+            "1. Rae1",
+            PGN(turns=PGNTurnList([PGNTurn(1, PGNTurnMove("Rae1"), None)])),
+            id="disambiguation-file",
+        ),
+        pytest.param(
+            "1. R1e1",
+            PGN(turns=PGNTurnList([PGNTurn(1, PGNTurnMove("R1e1"), None)])),
+            id="disambiguation-rank",
+        ),
+        pytest.param(
+            "1. Raxd1",
+            PGN(turns=PGNTurnList([PGNTurn(1, PGNTurnMove("Raxd1"), None)])),
+            id="disambiguation-file-and-capture",
+        ),
+        pytest.param(
+            "1. O-O O-O-O",
+            PGN(turns=PGNTurnList([PGNTurn(1, PGNTurnMove("O-O"), PGNTurnMove("O-O-O"))])),
+            id="castling",
         ),
         pytest.param(
             "1. e4 e5",
@@ -125,6 +150,11 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
             id="draw-result",
         ),
         pytest.param(
+            "1-0",
+            PGN(result=PGNGameResult.WHITE_WINS),
+            id="standalone-result",
+        ),
+        pytest.param(
             "1. e4??",
             PGN(
                 turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4", annotation=PGNBasicAnnotation.BLUNDER), None)]),
@@ -176,9 +206,19 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
             id="multiple-numeric-annotations",
         ),
         pytest.param(
+            '[EmptyTag ""]',
+            PGN(tags={"EmptyTag": ""}),
+            id="tags-single-empty",
+        ),
+        pytest.param(
             '[UTCDate "2025.01.13"]',
             PGN(tags={"UTCDate": "2025.01.13"}),
-            id="tags-single-field",
+            id="tags-single",
+        ),
+        pytest.param(
+            r'[Event "A \"quote\" in tag"]',
+            PGN(tags={"Event": r"A \"quote\" in tag"}),
+            id="tags-single-quote-escape",
         ),
         pytest.param(
             textwrap.dedent(
@@ -195,7 +235,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                     "Variant": "Standard",
                 },
             ),
-            id="tags-multiple-fields",
+            id="tags-multiple",
         ),
         pytest.param(
             "1. e4 (1... e5 2. Nf3) 1... c5",
@@ -329,6 +369,16 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
             id="global-line-comment",
         ),
         pytest.param(
+            "",
+            PGN(),
+            id="empty",
+        ),
+        pytest.param(
+            "2051. e4",
+            PGN(turns=PGNTurnList([PGNTurn(2051, PGNTurnMove("e4"), None)])),
+            id="large-turn-number",
+        ),
+        pytest.param(
             textwrap.dedent(
                 """
                 [Event "F/S Return Match"]
@@ -423,15 +473,15 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
 
             [Black "Spassky, Boris V."]
             [Result "1/2-1/2"]
-            1.e4 e5 2.Nf3 Nc6 3.Bb5{This opening is called the Ruy Lopez.} 3...a6
-            4.Ba4 Nf6 5.O-O Be7 6.Re1 b5 7. Bb3 d6 8.c3 O-O 9.h3 Nb8 10.d4 Nbd7
+            1.e4 e5\t2.Nf3 Nc6 3.Bb5{This opening is called the Ruy Lopez.} 3...a6
+            4.Ba4 Nf6 5.O-O Be7 6.Re1 b5 7. Bb3 d6 8.c3\tO-O 9.h3 Nb8 10.d4 Nbd7
             11.c4 c6 12.cxb5 axb5 13.Nc3 Bb7 14.Bg5 b4 15.Nb1 h6 16.Bh4 c5 17.dxe5
-            Nxe4 18.Bxe7 Qxe7     19.exd6 Qf6 20.Nbd2 Nxd6 21.Nc4 Nxc4 22.Bxc4 Nb6
+            Nxe4 18.Bxe7 Qxe7     19.exd6 Qf6 20.Nbd2 \t Nxd6 21.Nc4 Nxc4 22.Bxc4 Nb6
             23.Ne5 Rae8 24.Bxf7+ Rxf7 25.Nxf7 Rxe1+ 26.Qxe1 Kxf7 27.Qe3 Qg5 28.Qxg5
             hxg5 29.b3 Ke6 30.a3 Kd6 31.axb4 cxb4 32.Ra5 Nd5 33.f3 Bc8 34.Kf2 Bf5
             35.Ra7 g6            36.Ra6+ Kc5
             37.Ke1 Nf4 38.g3 Nxh3 39.   Kd2 Kb5 40.Rd6 Kc5 41.Ra6
-            Nf2 42.g4 Bd3 43. Re6 1/2-1/2
+            Nf2 42.g4 Bd3 43. Re6 \t\t1/2-1/2
 
 
             """,
@@ -497,9 +547,18 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
             ),
             id="full-game-extra-whitespace",
         ),
+        pytest.param(
+            " ".join(f"{i}. e4 e5" for i in range(1, 301)),
+            PGN(
+                turns=PGNTurnList(
+                    [PGNTurn(i, PGNTurnMove("e4"), PGNTurnMove("e5")) for i in range(1, 301)],
+                ),
+            ),
+            id="large-game",
+        ),
     ],
 )
-def test_parser(pgn: str, expected_ast: PGN):
-    """Check if the parser is working correctly, checking that the result matches the expected AST."""
+def test_valid_pgn(pgn: str, expected_ast: PGN):
+    """Check if given valid PGN is parsed correctly (matches the expected AST)."""
     parsed = PGN.from_string(pgn)
     assert parsed == expected_ast
