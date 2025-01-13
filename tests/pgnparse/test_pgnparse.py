@@ -399,7 +399,7 @@ from pgnparse import PGN, PGNBasicAnnotation, PGNGameResult, PGNTurn, PGNTurnLis
                 35.Ra7 g6 36.Ra6+ Kc5 37.Ke1 Nf4 38.g3 Nxh3 39.Kd2 Kb5 40.Rd6 Kc5 41.Ra6
                 Nf2 42.g4 Bd3 43.Re6 1/2-1/2
                 """,
-            ),
+            ).strip(),
             PGN(
                 tags={
                     "Event": "F/S Return Match",
