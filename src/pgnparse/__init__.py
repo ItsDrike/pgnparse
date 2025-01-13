@@ -18,7 +18,7 @@ __all__ = [
 # however, it is not 100% compatible with the EBNF standard, the lark parser makes
 # some modifications to the notation to make it more user-friendly.
 PGN_GRAMMAR = r"""
-pgn: WS? metadata_section WS? turn_section (WS result)? WS?
+pgn: WS? metadata_section WS? (comment WS?)? turn_section? (WS result)? WS?
 
 # Metadata
 metadata_section: metadata_line*
@@ -359,9 +359,10 @@ class PGNTurnList[T: PGNTurn | PGNTurnList](Sequence[T]):
 class PGN:
     """A PGN object that represents a full game in Portable Game Notation (PGN) format."""
 
-    metadata: dict[str, str]
-    turns: PGNTurnList[Any]
-    result: PGNGameResult
+    metadata: dict[str, str] = field(default_factory=dict[str, str])
+    turns: PGNTurnList[Any] = field(default_factory=lambda: PGNTurnList[Any]([]))
+    result: PGNGameResult = PGNGameResult.UNSPECIFIED
+    comment: str = ""
 
     @classmethod
     def from_string(cls, pgn: str) -> "PGN":
@@ -381,26 +382,25 @@ class PGN:
         # Collect tree children, skipping tokens (whitespace)
         subtrees = [el for el in tree.children if isinstance(el, Tree)]
 
-        metadata_section = subtrees[0]
-        if metadata_section.data != "metadata_section":
-            raise InvalidPGNTreeError("Metadata section not found")
-        metadata = cls._parse_metadata(metadata_section)
+        metadata = {}
+        comment = ""
+        result = PGNGameResult.UNSPECIFIED
+        turns: PGNTurnList[Any] = PGNTurnList([])
+        while len(subtrees) > 0:
+            section = subtrees.pop(0)
 
-        turns_section = subtrees[1]
-        if turns_section.data != "turn_section":
-            raise InvalidPGNTreeError("Turn section not found")
-        turns = PGNTurnList.from_tree(turns_section)
+            if section.data == "metadata_section":
+                metadata = cls._parse_metadata(section)
+            elif section.data == "comment":
+                comment = cast(Token, section.children[0]).value
+            elif section.data == "turn_section":
+                turns = PGNTurnList.from_tree(section)
+            elif section.data == "result":
+                result = PGNGameResult(cast(Token, section.children[0]).value)
+            else:
+                raise InvalidPGNTreeError(f"Unexpected section: {section.data}")
 
-        if len(subtrees) > 2:
-            result_tree = subtrees[2]
-            if result_tree.data != "result":
-                raise InvalidPGNTreeError("Result tree not found")
-
-            result = PGNGameResult(cast(Token, result_tree.children[0]).value)
-        else:
-            result = PGNGameResult.UNSPECIFIED
-
-        return cls(metadata, turns, result)
+        return cls(metadata, turns, result, comment)
 
     @staticmethod
     def _parse_metadata(tree: ParseTree) -> dict[str, str]:
