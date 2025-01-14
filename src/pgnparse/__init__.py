@@ -445,9 +445,12 @@ class PGN:
         if parts and (self.comment or self.turns or self.result is not PGNGameResult.UNSPECIFIED):
             parts.append("\n\n")
 
-        parts.append(str(self.turns))
+        inner_parts: list[str] = []
+        if self.turns:
+            inner_parts.append(str(self.turns))
         if self.result:
-            parts.append(f" {self.result}")
+            inner_parts.append(str(self.result))
+        parts.append(" ".join(inner_parts))
 
         return "".join(parts)
 
