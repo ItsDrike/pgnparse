@@ -442,7 +442,7 @@ class PGN:
 
         # There should be an additional newline between tags and comment/turns/result
         # (unless it's just tags)
-        if parts and (self.comment or self.turns or self.result is not PGNGameResult.UNSPECIFIED):
+        if tag_parts and (self.comment or self.turns or self.result is not PGNGameResult.UNSPECIFIED):
             parts.append("\n\n")
 
         inner_parts: list[str] = []
@@ -450,6 +450,12 @@ class PGN:
             inner_parts.append(str(self.turns))
         if self.result:
             inner_parts.append(str(self.result))
+
+        if self.comment:
+            parts.append("{" + str(self.comment) + "}")
+            if inner_parts:
+                parts.append("\n")
+
         parts.append(" ".join(inner_parts))
 
         return "".join(parts)
