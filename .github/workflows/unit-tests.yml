@@ -20,17 +20,20 @@ jobs:
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v5
-        id: setup_uv
         with:
           version: "latest"
           python-version: ${{ matrix.python-version }}
           enable-cache: true
-          cache-suffix: "validation-ci"
+          cache-suffix: "test-ci"
+
+      - name: Install test dependencies
+        run: |
+          # Only install the test dependencies + the project itself
+          uv sync --no-group dev --no-group lint
 
       - name: Run pytest
         shell: bash
-        run: |
-          uv run poe test
+        run: poe test
 
   tests-done:
     needs: [unit-tests]

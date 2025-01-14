@@ -17,12 +17,17 @@ jobs:
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v5
-        id: setup_uv
         with:
           version: "latest"
           python-version: ${{ env.PYTHON_VERSION }}
           enable-cache: true
           cache-suffix: "validation-ci"
+
+      - name: Install lint dependencies
+        run: |
+          # Install the lint & test dependency groups + the project's core deps.
+          # We need the test group to allow pyright to type-check the code in tests/
+          uv sync --no-group dev
 
       - name: Get precommit version
         id: precommit_version
@@ -43,13 +48,13 @@ jobs:
           restore-keys: "precommit-${{ runner.os }}-${{ env.PYTHON_VERSION }}-"
 
       - name: Run pre-commit hooks
-        run: SKIP=ruff-linter,ruff-formatter,basedpyright uv run pre-commit run --all-files
+        run: SKIP=ruff-linter,ruff-formatter,basedpyright pre-commit run --all-files
 
       - name: Run ruff linter
-        run: uv run ruff check --output-format=github --show-fixes --exit-non-zero-on-fix .
+        run: ruff check --output-format=github --show-fixes --exit-non-zero-on-fix .
 
       - name: Run ruff formatter
-        run: uv run ruff format --diff .
+        run: ruff format --diff .
 
       - name: Run basedpyright type checker
-        run: uv run basedpyright --warnings .
+        run: basedpyright --warnings .
