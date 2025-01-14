@@ -16,11 +16,11 @@ repos:
       - id: ruff-linter
         name: Ruff Linter
         description: Run ruff checks on the code
-        entry: ruff check --force-exclude
+        entry: ruff check
         language: system
         types: [python]
         require_serial: true
-        args: [--fix, --exit-non-zero-on-fix]
+        args: [--fix, --exit-non-zero-on-fix, --force-exclude]
 
   - repo: local
     hooks:
@@ -37,10 +37,11 @@ repos:
       - id: basedpyright
         name: Based Pyright
         description: Run basedpyright type checker
-        entry: basedpyright --warnings
+        entry: basedpyright
         language: system
         types: [python]
         pass_filenames: false # pyright runs for the entire project, it can't run for single files
+        args: [--warnings]
 
   - repo: local
     hooks:
