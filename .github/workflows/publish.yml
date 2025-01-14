@@ -5,6 +5,7 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -60,6 +61,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment: release
+    permissions:
+      contents: write
 
     steps:
       - name: Download the distribution files from PR artifact
@@ -90,14 +93,6 @@ jobs:
         with:
           name: "dist"
           path: "dist/"
-
-      # Upload to Test PyPI first, in case something fails.
-      # This uses PyPI's trusted publishing, so no token is required
-      - name: Upload to Test PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          # (The "legacy" in the URL doesn't mean it's deprecated)
-          repository-url: https://test.pypi.org/legacy/
 
       # This uses PyPI's trusted publishing, so no token is required
       - name: Release to PyPI
