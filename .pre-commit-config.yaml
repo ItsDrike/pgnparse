@@ -16,7 +16,7 @@ repos:
       - id: ruff-linter
         name: Ruff Linter
         description: Run ruff checks on the code
-        entry: uv run ruff check --force-exclude
+        entry: ruff check --force-exclude
         language: system
         types: [python]
         require_serial: true
@@ -27,7 +27,7 @@ repos:
       - id: ruff-formatter
         name: Ruff Formatter
         description: Ruf ruff auto-formatter
-        entry: uv run ruff format
+        entry: ruff format
         language: system
         types: [python]
         require_serial: true
@@ -37,7 +37,7 @@ repos:
       - id: basedpyright
         name: Based Pyright
         description: Run basedpyright type checker
-        entry: uv run basedpyright --warnings
+        entry: basedpyright --warnings
         language: system
         types: [python]
         pass_filenames: false # pyright runs for the entire project, it can't run for single files
