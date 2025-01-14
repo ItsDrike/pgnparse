@@ -33,7 +33,7 @@ jobs:
 
       - name: Run pytest
         shell: bash
-        run: poe test
+        run: pytest -vv
 
   tests-done:
     needs: [unit-tests]
