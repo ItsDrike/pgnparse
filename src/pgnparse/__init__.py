@@ -377,7 +377,7 @@ class PGN:
     tags: dict[str, str] = field(default_factory=dict[str, str])
     turns: PGNTurnList[Any] = field(default_factory=lambda: PGNTurnList[Any]([]))
     result: PGNGameResult = PGNGameResult.UNSPECIFIED
-    comment: str = ""
+    comment: str | None = None
 
     @classmethod
     def from_string(cls, pgn: str) -> "PGN":
@@ -398,7 +398,7 @@ class PGN:
         subtrees = [el for el in tree.children if isinstance(el, Tree)]
 
         tags = {}
-        comment = ""
+        comment = None
         result = PGNGameResult.UNSPECIFIED
         turns: PGNTurnList[Any] = PGNTurnList([])
         while len(subtrees) > 0:
