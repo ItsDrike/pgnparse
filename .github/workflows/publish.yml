@@ -1,0 +1,104 @@
+---
+name: Publish to PyPI / GitHub
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: "Build the project"
+    runs-on: ubuntu-latest
+
+    outputs:
+      prerelease: ${{ steps.check-version.outputs.prerelease }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          cache-suffix: "publish-ci"
+
+      - name: Install dependencies
+        run: |
+          # Only install the project itself, no extra groups
+          uv sync --no-group dev --no-group lint --no-group test
+
+      - name: Build the project
+        run: uv build
+
+      - name: Check pre-release status
+        id: check-version
+        run: |
+          if [[ "$(poetry version --short)" =~ "^[0-9]+\.[0-9]+\.[0-9]+$" ]]
+          then
+            echo prerelease=true >> $GITHUB_OUTPUT
+          else
+            echo prerelease=false >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload build files
+        uses: actions/upload-artifact@v4
+        with:
+          name: "dist"
+          path: "dist/"
+          if-no-files-found: error
+          retention-days: 5
+
+  publish-github:
+    name: "Publish a GitHub release"
+    needs: build
+    runs-on: ubuntu-latest
+    environment: release
+
+    steps:
+      - name: Download the distribution files from PR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: "dist"
+          path: "dist/"
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "dist/*"
+          draft: false
+          prerelease: ${{ needs.build.outputs.prerelease == 'true' }}
+
+  publish-pypi:
+    name: "Publish to PyPI"
+    needs: build
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      # Used to authenticate to PyPI via OIDC.
+      id-token: write
+
+    steps:
+      - name: Download the distribution files from PR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: "dist"
+          path: "dist/"
+
+      # Upload to Test PyPI first, in case something fails.
+      # This uses PyPI's trusted publishing, so no token is required
+      - name: Upload to Test PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          # (The "legacy" in the URL doesn't mean it's deprecated)
+          repository-url: https://test.pypi.org/legacy/
+
+      # This uses PyPI's trusted publishing, so no token is required
+      - name: Release to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
