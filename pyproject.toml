@@ -1,13 +1,13 @@
 [project]
 name = "pgnparse"
-version = "0.1.0"
+version = "0.2.0"
 description = "A library for parsing PGN chess notations"
 readme = "README.md"
 authors = [{ name = "ItsDrike", email = "itsdrike@protonmail.com" }]
 license = "MIT"
 requires-python = ">=3.12"
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
   "License :: OSI Approved :: MIT License",
   "Natural Language :: English",
