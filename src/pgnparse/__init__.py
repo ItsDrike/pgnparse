@@ -436,12 +436,14 @@ class PGN:
     def __str__(self) -> str:
         parts: list[str] = []
 
-        for key, value in self.tags.items():
-            parts.append(f'[{key} "{value}"]\n')
+        tag_parts = [f'[{key} "{value}"]' for key, value in self.tags.items()]
+        if tag_parts:
+            parts.append("\n".join(tag_parts))
 
-        # There is (usually) an additional newline between tags and turns
-        if len(parts) > 0:
-            parts.append("\n")
+        # There should be an additional newline between tags and comment/turns/result
+        # (unless it's just tags)
+        if parts and (self.comment or self.turns or self.result is not PGNGameResult.UNSPECIFIED):
+            parts.append("\n\n")
 
         parts.append(str(self.turns))
         if self.result:
