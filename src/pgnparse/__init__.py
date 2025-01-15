@@ -436,7 +436,7 @@ class PGN:
     def __str__(self) -> str:
         parts: list[str] = []
 
-        tag_parts = [f'[{key} "{value}"]' for key, value in self.tags.items()]
+        tag_parts = [f'[{key} "{value.replace('"', '\\"')}"]' for key, value in self.tags.items()]
         if tag_parts:
             parts.append("\n".join(tag_parts))
 
