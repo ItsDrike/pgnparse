@@ -1,13 +1,8 @@
 import textwrap
-from typing import Any
 
 import pytest
 
 from pgnparse import PGN, PGNGameResult, PGNTurn, PGNTurnList, PGNTurnMove
-
-# This avoids pyright complaining about unknown generic type
-# as we'll be using the Any type in the parameterized tests a lot
-PGNTurnListA = PGNTurnList[Any]
 
 
 @pytest.mark.parametrize(
@@ -34,18 +29,18 @@ PGNTurnListA = PGNTurnList[Any]
             id="global-comment-multiline",
         ),
         pytest.param(
-            PGN(turns=PGNTurnListA([PGNTurn(1, PGNTurnMove("e4"), None)])),
+            PGN(turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), None)])),
             "1. e4",
             id="single-move-turn",
         ),
         pytest.param(
-            PGN(turns=PGNTurnListA([PGNTurn(1, PGNTurnMove("e4"), PGNTurnMove("e5"))])),
+            PGN(turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), PGNTurnMove("e5"))])),
             "1. e4 e5",
             id="single-turn",
         ),
         pytest.param(
             PGN(
-                turns=PGNTurnListA(
+                turns=PGNTurnList(
                     [
                         PGNTurn(1, PGNTurnMove("e4"), PGNTurnMove("e5")),
                         PGNTurn(2, PGNTurnMove("Nf3"), PGNTurnMove("Nc6")),
@@ -56,18 +51,18 @@ PGNTurnListA = PGNTurnList[Any]
             id="multiple-turns",
         ),
         pytest.param(
-            PGN(turns=PGNTurnListA([PGNTurn(1, None, PGNTurnMove("e5"))])),
+            PGN(turns=PGNTurnList([PGNTurn(1, None, PGNTurnMove("e5"))])),
             "1... e5",
             id="single-continuation-turn",
         ),
         pytest.param(
-            PGN(turns=PGNTurnListA([PGNTurn(1, PGNTurnMove("e4"), PGNTurnMove("e5", comment="Comment"))])),
+            PGN(turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), PGNTurnMove("e5", comment="Comment"))])),
             "1. e4 e5 {Comment}",
             id="single-turn-with-comment",
         ),
         pytest.param(
             PGN(
-                turns=PGNTurnListA(
+                turns=PGNTurnList(
                     [
                         PGNTurn(
                             1,
@@ -81,13 +76,13 @@ PGNTurnListA = PGNTurnList[Any]
             id="single-turn-with-two-comments",
         ),
         pytest.param(
-            PGN(turns=PGNTurnListA([PGNTurn(1, None, PGNTurnMove("e5", comment="Comment"))])),
+            PGN(turns=PGNTurnList([PGNTurn(1, None, PGNTurnMove("e5", comment="Comment"))])),
             "1... e5 {Comment}",
             id="single-continuation-turn-with-comment",
         ),
         pytest.param(
             PGN(
-                turns=PGNTurnListA([PGNTurn(1, PGNTurnMove("e4"), PGNTurnMove("e5"))]),
+                turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), PGNTurnMove("e5"))]),
                 result=PGNGameResult.WHITE_WINS,
             ),
             "1. e4 e5 1-0",
@@ -127,7 +122,7 @@ PGNTurnListA = PGNTurnList[Any]
         pytest.param(
             PGN(
                 tags={"Event": "F/S Return Match"},
-                turns=PGNTurnListA(
+                turns=PGNTurnList(
                     [PGNTurn(1, PGNTurnMove("e4"), PGNTurnMove("e5"))],
                 ),
             ),
@@ -143,7 +138,7 @@ PGNTurnListA = PGNTurnList[Any]
         pytest.param(
             PGN(
                 comment="This is a global comment.",
-                turns=PGNTurnListA([PGNTurn(1, PGNTurnMove("e4"), PGNTurnMove("e5"))]),
+                turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), PGNTurnMove("e5"))]),
             ),
             textwrap.dedent(
                 """
@@ -157,7 +152,7 @@ PGNTurnListA = PGNTurnList[Any]
             PGN(
                 tags={"Event": "F/S Return Match"},
                 comment="This is a global comment.",
-                turns=PGNTurnListA([PGNTurn(1, PGNTurnMove("e4"), PGNTurnMove("e5"))]),
+                turns=PGNTurnList([PGNTurn(1, PGNTurnMove("e4"), PGNTurnMove("e5"))]),
             ),
             textwrap.dedent(
                 """

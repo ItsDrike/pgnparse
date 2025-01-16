@@ -1,7 +1,7 @@
 from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import Any, cast, final, overload, override
+from typing import cast, final, overload, override
 
 from lark import Lark, ParseTree, Token, Tree
 
@@ -250,23 +250,23 @@ class PGNTurn:
 
 
 @final
-class PGNTurnList[T: PGNTurn | PGNTurnList](Sequence[T]):
+class PGNTurnList(Sequence["PGNTurn | PGNTurnList"]):
     """A sequence of PGNTurn and PGNTurnList objects.
 
     The sequence can contain variations, represented as the nested PGNTurnList objects.
     """
 
-    def __init__(self, turns: Iterable[T]):
+    def __init__(self, turns: Iterable["PGNTurn | PGNTurnList"]):
         self._turns = list(turns)
 
     @overload
-    def __getitem__(self, index: int) -> "T": ...
+    def __getitem__(self, index: int) -> "PGNTurn | PGNTurnList": ...
 
     @overload
-    def __getitem__(self, index: slice) -> "PGNTurnList[T]": ...
+    def __getitem__(self, index: slice) -> "PGNTurnList": ...
 
     @override
-    def __getitem__(self, index: int | slice) -> "T | PGNTurnList[T]":
+    def __getitem__(self, index: int | slice) -> "PGNTurn | PGNTurnList":
         if isinstance(index, slice):
             return PGNTurnList(self._turns[index])
         return self._turns[index]
@@ -279,7 +279,6 @@ class PGNTurnList[T: PGNTurn | PGNTurnList](Sequence[T]):
     def __eq__(self, other: object, /) -> bool:
         if not isinstance(other, PGNTurnList):
             return NotImplemented
-        other = cast(PGNTurnList[Any], other)  # Make the generic explicitly Any
 
         return list(self) == list(other)
 
@@ -288,7 +287,7 @@ class PGNTurnList[T: PGNTurn | PGNTurnList](Sequence[T]):
         return f"{self.__class__.__name__}({self._turns})"
 
     @classmethod
-    def from_tree(cls, tree: ParseTree) -> "PGNTurnList[Any]":
+    def from_tree(cls, tree: ParseTree) -> "PGNTurnList":
         """Parse a Lark sub-tree from the PGN grammar and return a PGNTurnList object.
 
         This expects a 'turn_section' tree from the PGN grammar.
@@ -296,7 +295,7 @@ class PGNTurnList[T: PGNTurn | PGNTurnList](Sequence[T]):
         if tree.data != "turn_section":
             raise InvalidPGNTreeError(f"Expected 'turn_section' or 'variant' tree, found: {tree.data}")
 
-        lst: list[PGNTurn | PGNTurnList[Any]] = []
+        lst: list[PGNTurn | PGNTurnList] = []
         for el in tree.children:
             # Non-trees (tokens) are just whitespace
             if not isinstance(el, Tree):
@@ -307,7 +306,7 @@ class PGNTurnList[T: PGNTurn | PGNTurnList](Sequence[T]):
                 variant_turn_section = el.children[0]
                 if not isinstance(variant_turn_section, Tree) or variant_turn_section.data != "turn_section":
                     raise InvalidPGNTreeError("Variant turn section not found")
-                variant: PGNTurnList[Any] = cls.from_tree(variant_turn_section)
+                variant: PGNTurnList = cls.from_tree(variant_turn_section)
                 lst.append(variant)
             # Otherwise, it should be a turn
             elif el.data == "turn":
@@ -315,7 +314,7 @@ class PGNTurnList[T: PGNTurn | PGNTurnList](Sequence[T]):
             else:
                 raise InvalidPGNTreeError(f"Unexpected element {el.data}")
 
-        return cls(lst)  # pyright: ignore[reportArgumentType]
+        return cls(lst)
 
     @override
     def __str__(self) -> str:
@@ -330,7 +329,7 @@ class PGNTurnList[T: PGNTurn | PGNTurnList](Sequence[T]):
 
         return " ".join(parts)
 
-    def flatten(self) -> Iterator["PGNTurnList[PGNTurn]"]:
+    def flatten(self) -> Iterator["PGNTurnList"]:
         """Generate a list of full game turn-lists without any variations.
 
         Each variation produces a separate games, starting from the same mainline moves up to the variation point.
@@ -341,7 +340,7 @@ class PGNTurnList[T: PGNTurn | PGNTurnList](Sequence[T]):
     @classmethod
     def _flatten(
         cls,
-        turns: Sequence["PGNTurn | PGNTurnList[Any]"],
+        turns: Sequence["PGNTurn | PGNTurnList"],
         prefix: list[PGNTurn],
     ) -> Iterator[list[PGNTurn]]:
         for turn in turns:
@@ -375,7 +374,7 @@ class PGN:
     """A PGN object that represents a full game in Portable Game Notation (PGN) format."""
 
     tags: dict[str, str] = field(default_factory=dict[str, str])
-    turns: PGNTurnList[Any] = field(default_factory=lambda: PGNTurnList[Any]([]))
+    turns: PGNTurnList = field(default_factory=lambda: PGNTurnList([]))
     result: PGNGameResult = PGNGameResult.UNSPECIFIED
     comment: str | None = None
 
@@ -400,7 +399,7 @@ class PGN:
         tags = {}
         comment = None
         result = PGNGameResult.UNSPECIFIED
-        turns: PGNTurnList[Any] = PGNTurnList([])
+        turns = PGNTurnList([])
         while len(subtrees) > 0:
             section = subtrees.pop(0)
 
@@ -469,7 +468,7 @@ class PGN:
         return self.tags
 
     @property
-    def movetext(self) -> PGNTurnList[PGNTurn]:
+    def movetext(self) -> PGNTurnList:
         """Alias for the turns attribute.
 
         Movetext follows the official terminology, but we used turns,
