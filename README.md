@@ -20,3 +20,15 @@ The parsing is handled using the
 which is therefore a dependecy of this library. Lark allows specifying a formal
 EBNF-like grammar definition, which it then uses to tokenize the given input.
 This token tree is then used to produce the AST.
+
+## Future Goals
+
+- [x] Implement the basic PGN grammar & tokenizer
+- [x] AST classes for PGN
+- [ ] Add some usage examples / docs
+- [ ] Consider re-exporting lark errors from the lib
+- [ ] Consider implementing a FEN parser
+- [ ] Consider implementing chess logic
+    - [ ] Move validation
+    - [ ] Board position evaluation
+    - [ ] Potential for PGN -> FEN conversion
